@@ -1,8 +1,16 @@
 const { SlashCommandBuilder } = require('discord.js');
 const { joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerStatus, VoiceConnectionStatus, entersState } = require('@discordjs/voice');
 const fetch = require('node-fetch');
-const ffmpeg = require('fluent-ffmpeg');
-const ffmpegPath = require('ffmpeg-static');
+
+// Attempt to use @discordjs/opus, fallback to opusscript if not available
+let OpusEncoder;
+try {
+    OpusEncoder = require('@discordjs/opus').OpusEncoder;
+    console.log('Using @discordjs/opus for encoding.');
+} catch (error) {
+    OpusEncoder = require('opusscript').OpusEncoder;
+    console.log('Using opusscript as fallback for encoding.');
+}
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -26,7 +34,6 @@ module.exports = {
       return;
     }
 
-    // Check if the provided URL is an .m3u file
     if (!inputUrl.endsWith('.m3u')) {
       await interaction.reply('Please provide a valid .m3u URL. This bot currently only supports streaming from .m3u playlist URLs.');
       return;
@@ -79,16 +86,7 @@ module.exports = {
       console.log('Attempting to stream:', streamUrl);
 
       try {
-        const audioResource = createAudioResource(
-          ffmpeg(streamUrl)
-            .setFfmpegPath(ffmpegPath)
-            .audioCodec('libopus')
-            .audioChannels(2)
-            .format('opus')
-            .pipe(),
-          { inlineVolume: true }
-        );
-
+        const audioResource = createAudioResource(streamUrl, { inlineVolume: true });
         audioResource.volume.setVolume(0.2); // Adjust volume as needed
         player.play(audioResource);
       } catch (error) {
