@@ -1,2 +1,10 @@
 package-lock.json
-node_modules
+# Ignore everything in node_modules
+node_modules/*
+
+# Allow the @discordjs folder
+!node_modules/@discordjs/
+
+# Specifically ignore everything in @discordjs except for opus
+node_modules/@discordjs/*
+!node_modules/@discordjs/opus/
