@@ -1,7 +1,7 @@
 {
-  "name": "thefryingbot",
+  "name": "bltmusicbot",
   "version": "1.0.0",
-  "description": "EventsBot",
+  "description": "bltmusicbot",
   "main": "index.js",
   "scripts": {
     "prestart": "node deploy-commands.js",
