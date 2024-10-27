@@ -12,7 +12,7 @@ module.exports = {
             .setAuthor({ name: 'Cyclosarin', iconURL: 'https://i.ibb.co/mCJFKrH/Discord-Picture.jpg', url: 'https://discord.com/users/269195416963121152' })
 			.setDescription('This is a list with all currently available commands.')
 			.addFields(
-                { name: '/playstream', value: 'Allows to set a voice channel and a stream to play that stream in.' },
+                { name: '/playstream', value: 'Allows to set a voice channel and a stream to play that stream in, will default to a stream if no stream is supplied.' },
 				{ name: '/help', value: 'Shows this list' },
             )
             .setTimestamp()
