@@ -26,6 +26,18 @@ module.exports = {
       return;
     }
 
+    // Check if the provided URL is an .m3u file
+    if (!inputUrl.endsWith('.m3u')) {
+      await interaction.reply('Please provide a valid .m3u URL. This bot currently only supports streaming from .m3u playlist URLs.');
+      return;
+    }
+
+    await interaction.deferReply();
+
+    if (!interaction.options.getString('url')) {
+      await interaction.editReply(`No URL provided. Using default stream: ${inputUrl}`);
+    }
+
     const connection = joinVoiceChannel({
       channelId: channel.id,
       guildId: channel.guild.id,
@@ -34,21 +46,16 @@ module.exports = {
 
     const player = createAudioPlayer();
 
-    // Fetch the stream URL from the .m3u file if needed
     const getDirectStreamUrl = async (url) => {
-      if (!url.endsWith('.m3u')) return url;
-
       try {
         const response = await fetch(url);
         const m3uContent = await response.text();
         const streamUrls = m3uContent.split('\n').filter(line => line && !line.startsWith('#'));
 
         console.log('Extracted stream URLs from .m3u file:', streamUrls);
-        
-        // Log all extracted URLs and return the first valid one
+
         for (const url of streamUrls) {
           console.log('Testing extracted URL:', url.trim());
-          // Return the first URL that doesn't yield a 404 error (basic validation)
           if (await fetch(url.trim()).then(res => res.ok)) {
             return url.trim();
           }
@@ -64,24 +71,34 @@ module.exports = {
 
     const playStream = async () => {
       const streamUrl = await getDirectStreamUrl(inputUrl);
+
       if (!streamUrl) {
-        await interaction.followUp('Failed to retrieve a valid stream URL.');
+        await interaction.editReply('Failed to retrieve a valid stream URL from the provided .m3u file or no valid URLs found.');
         return;
       }
 
       console.log('Attempting to stream:', streamUrl);
 
-      const audioResource = createAudioResource(
-        ffmpeg(streamUrl)
-          .setFfmpegPath(ffmpegPath)
-          .audioCodec('libopus')
-          .format('opus')
-          .pipe(),
-        { inlineVolume: true }
-      );
+      try {
+        const audioResource = createAudioResource(
+          ffmpeg(streamUrl)
+            .setFfmpegPath(ffmpegPath)
+            .audioCodec('libopus')
+            .audioChannels(2) // Ensure stereo output
+            .format('opus')
+            .audioBitrate(512) // Set bitrate for better quality
+            .audioFrequency(48000) // Standard audio frequency for Discord
+            .pipe(),
+          { inlineVolume: true }
+        );
 
-      audioResource.volume.setVolume(0.1); // Set volume to 100%
-      player.play(audioResource);
+        audioResource.volume.setVolume(0.1); // Set volume to 10%
+        player.play(audioResource);
+      } catch (error) {
+        console.error('Error creating audio resource:', error);
+        await interaction.editReply('An error occurred while attempting to play the stream.');
+        return;
+      }
     };
 
     player.on(AudioPlayerStatus.Playing, () => {
@@ -90,12 +107,13 @@ module.exports = {
 
     player.on(AudioPlayerStatus.Idle, () => {
       console.log('Audio Player is idle. Restarting stream...');
-      playStream();
+      setTimeout(playStream, 2000); // Retry after 2 seconds on idle
     });
 
-    player.on('error', error => {
+    player.on('error', async error => {
       console.error('Audio Player Error:', error);
-      setTimeout(playStream, 5000); // Retry after error
+      await interaction.editReply('An error occurred while streaming audio. Retrying...');
+      setTimeout(playStream, 5000); // Retry after error with delay
     });
 
     connection.on(VoiceConnectionStatus.Disconnected, async () => {
@@ -105,14 +123,19 @@ module.exports = {
           entersState(connection, VoiceConnectionStatus.Connecting, 5_000),
         ]);
       } catch (error) {
-        console.log('Connection failed. Destroying connection.');
+        console.log('Connection lost. Destroying connection.');
         connection.destroy();
+        setTimeout(async () => {
+          console.log('Attempting to reconnect...');
+          connection.subscribe(player);
+          await playStream();
+        }, 5000); // Wait 5 seconds before reconnecting
       }
     });
 
     connection.subscribe(player);
 
     await playStream(); // Start playing immediately
-    await interaction.reply(`Now playing stream in ${channel.name}! URL: ${inputUrl}`);
+    await interaction.editReply(`Now playing stream in ${channel.name}! URL: ${inputUrl}`);
   },
 };
