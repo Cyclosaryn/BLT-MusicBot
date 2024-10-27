@@ -55,7 +55,6 @@ module.exports = {
         console.log('Extracted stream URLs from .m3u file:', streamUrls);
 
         for (const url of streamUrls) {
-          console.log('Testing extracted URL:', url.trim());
           if (await fetch(url.trim()).then(res => res.ok)) {
             return url.trim();
           }
@@ -84,15 +83,13 @@ module.exports = {
           ffmpeg(streamUrl)
             .setFfmpegPath(ffmpegPath)
             .audioCodec('libopus')
-            .audioChannels(2) // Ensure stereo output
+            .audioChannels(2)
             .format('opus')
-            .audioBitrate(512) // Set bitrate for better quality
-            .audioFrequency(48000) // Standard audio frequency for Discord
             .pipe(),
           { inlineVolume: true }
         );
 
-        audioResource.volume.setVolume(0.1); // Set volume to 10%
+        audioResource.volume.setVolume(0.2); // Adjust volume as needed
         player.play(audioResource);
       } catch (error) {
         console.error('Error creating audio resource:', error);
@@ -107,13 +104,13 @@ module.exports = {
 
     player.on(AudioPlayerStatus.Idle, () => {
       console.log('Audio Player is idle. Restarting stream...');
-      setTimeout(playStream, 2000); // Retry after 2 seconds on idle
+      setTimeout(playStream, 2000);
     });
 
     player.on('error', async error => {
       console.error('Audio Player Error:', error);
       await interaction.editReply('An error occurred while streaming audio. Retrying...');
-      setTimeout(playStream, 5000); // Retry after error with delay
+      setTimeout(playStream, 5000);
     });
 
     connection.on(VoiceConnectionStatus.Disconnected, async () => {
@@ -129,13 +126,12 @@ module.exports = {
           console.log('Attempting to reconnect...');
           connection.subscribe(player);
           await playStream();
-        }, 5000); // Wait 5 seconds before reconnecting
+        }, 5000);
       }
     });
 
     connection.subscribe(player);
-
-    await playStream(); // Start playing immediately
+    await playStream();
     await interaction.editReply(`Now playing stream in ${channel.name}! URL: ${inputUrl}`);
   },
 };

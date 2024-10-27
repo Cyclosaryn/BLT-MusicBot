@@ -28,8 +28,11 @@ const rest = new REST({ version: '10' }).setToken(token);
 
             console.log(`Successfully reloaded ${data.length} application (/) commands for guild ${guildId}.`);
         } catch (error) {
-            console.error(`Failed to deploy commands for guild ${guildId}:`, error);
+            if (error.code === 50001) {
+                console.warn(`Skipping guild ${guildId} due to missing access.`);
+            } else {
+                console.error(`Failed to deploy commands for guild ${guildId}:`, error);
+            }
         }
     }
 })();
-
