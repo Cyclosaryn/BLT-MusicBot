@@ -1,8 +1,7 @@
 const { SlashCommandBuilder } = require('discord.js');
 const { joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerStatus, VoiceConnectionStatus, entersState } = require('@discordjs/voice');
 const fetch = require('node-fetch');
-const ffmpeg = require('fluent-ffmpeg');
-const ffmpegPath = require('ffmpeg-static');
+const { OpusEncoder } = require('@discordjs/opus'); // Import @discordjs/opus
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -46,6 +45,7 @@ module.exports = {
 
     const player = createAudioPlayer();
 
+    // Fetch the direct stream URL from the .m3u file if provided
     const getDirectStreamUrl = async (url) => {
       try {
         const response = await fetch(url);
@@ -79,17 +79,9 @@ module.exports = {
       console.log('Attempting to stream:', streamUrl);
 
       try {
-        const audioResource = createAudioResource(
-          ffmpeg(streamUrl)
-            .setFfmpegPath(ffmpegPath)
-            .audioCodec('libopus')
-            .audioChannels(2)
-            .format('opus')
-            .pipe(),
-          { inlineVolume: true }
-        );
-
-        audioResource.volume.setVolume(0.2); // Adjust volume as needed
+        // Create the audio resource using the stream URL
+        const audioResource = createAudioResource(streamUrl, { inlineVolume: true });
+        audioResource.volume.setVolume(0.5); // Set to a balanced volume level to avoid distortion
         player.play(audioResource);
       } catch (error) {
         console.error('Error creating audio resource:', error);
@@ -104,13 +96,13 @@ module.exports = {
 
     player.on(AudioPlayerStatus.Idle, () => {
       console.log('Audio Player is idle. Restarting stream...');
-      setTimeout(playStream, 2000);
+      setTimeout(playStream, 2000); // Restart on idle
     });
 
     player.on('error', async error => {
       console.error('Audio Player Error:', error);
       await interaction.editReply('An error occurred while streaming audio. Retrying...');
-      setTimeout(playStream, 5000);
+      setTimeout(playStream, 5000); // Retry after error
     });
 
     connection.on(VoiceConnectionStatus.Disconnected, async () => {
