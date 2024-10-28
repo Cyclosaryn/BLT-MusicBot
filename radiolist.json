@@ -1,0 +1,167 @@
+[
+    {
+        "name": "BBC Radio 1",
+        "url": "http://bbcmedia.ic.llnwd.net/stream/bbcmedia_radio1_mf_p",
+        "country": "England"
+    },
+    {
+        "name": "BBC Radio 2",
+        "url": "http://bbcmedia.ic.llnwd.net/stream/bbcmedia_radio2_mf_p",
+        "country": "England"
+    },
+    {
+        "name": "BBC Radio 4",
+        "url": "http://bbcmedia.ic.llnwd.net/stream/bbcmedia_radio4fm_mf_p",
+        "country": "England"
+    },
+    {
+        "name": "BBC Radio 5 Live",
+        "url": "http://bbcmedia.ic.llnwd.net/stream/bbcmedia_radio5live_mf_p",
+        "country": "England"
+    },
+    {
+        "name": "TalkSPORT",
+        "url": "http://radio.talksport.com/stream",
+        "country": "England"
+    },
+    {
+        "name": "NPO Radio 1",
+        "url": "http://icecast.omroep.nl/radio1-bb-mp3",
+        "country": "Netherlands"
+    },
+    {
+        "name": "NPO Radio 2",
+        "url": "http://icecast.omroep.nl/radio2-bb-mp3",
+        "country": "Netherlands"
+    },
+    {
+        "name": "Slam FM",
+        "url": "http://stream.slam.nl/slam_mp3",
+        "country": "Netherlands"
+    },
+    {
+        "name": "NPO 3FM",
+        "url": "https://icecast.omroep.nl/3fm-sb-mp3",
+        "country": "Netherlands"
+    },
+    {
+        "name": "Studio Brussel",
+        "url": "http://icecast.vrtcdn.be/stubru-high.mp3",
+        "country": "Belgium"
+    },
+    {
+        "name": "Qmusic",
+        "url": "http://icecast-qmusicnl-cdp.triple-it.nl/Qmusic_nl_live_96.mp3",
+        "country": "Belgium"
+    },
+    {
+        "name": "Radio 1",
+        "url": "http://icecast.vrtcdn.be/radio1-high.mp3",
+        "country": "Belgium"
+    },
+    {
+        "name": "Nostalgie",
+        "url": "http://nostalgie-stream.icecast.lu:8000/nostalgie",
+        "country": "Belgium"
+    },
+    {
+        "name": "NRJ",
+        "url": "http://cdn.nrjaudio.fm/audio1/fr/40001/mp3_128.mp3",
+        "country": "France"
+    },
+    {
+        "name": "RMC",
+        "url": "http://rmcinfo.cdn.radioline.fr/rmcinfo",
+        "country": "France"
+    },
+    {
+        "name": "Fun Radio",
+        "url": "http://streaming.radio.funradio.fr/fun-1-44-128",
+        "country": "France"
+    },
+    {
+        "name": "Skyrock",
+        "url": "http://icecast.skyrock.net/s/natio_mp3_128k",
+        "country": "France"
+    },
+    {
+        "name": "Antenne Bayern",
+        "url": "http://mp3channels.webradio.antenne.de/antenne",
+        "country": "Germany"
+    },
+    {
+        "name": "Deutschlandfunk",
+        "url": "http://st01.dlf.de/dlf/01/128/mp3/stream.mp3",
+        "country": "Germany"
+    },
+    {
+        "name": "Radio Hamburg",
+        "url": "https://frontend.streamonkey.net/rhh-1036",
+        "country": "Germany"
+    },
+    {
+        "name": "SWR3",
+        "url": "https://liveradio.swr.de/sw282p3/swr3/play.mp3",
+        "country": "Germany"
+    },
+    {
+        "name": "KISS FM",
+        "url": "https://bbkissfm.kissfmradio.cires21.com/bbkissfm.mp3",
+        "country": "Spain"
+    },
+    {
+        "name": "Radio Nacional",
+        "url": "https://dispatcher.rndfnk.com/crtve/rne1/main/mp3/high",
+        "country": "Spain"
+    },
+    {
+        "name": "Cadena 100",
+        "url": "https://cadena100-cope-rrcast.flumotion.com/cope/cadena100-low.mp3",
+        "country": "Spain"
+    },
+    {
+        "name": "Onda Cero",
+        "url": "https://agregadores-atres-live.atresmedia.com/tunein/live/ondacero/master.m3u8",
+        "country": "Spain"
+    },
+    {
+        "name": "Antena 1",
+        "url": "https://streaming-live.rtp.pt/liveradio/antena180a/playlist.m3u8",
+        "country": "Portugal"
+    },
+    {
+        "name": "Mega Hits",
+        "url": "https://playerservices.streamtheworld.com/api/livestream-redirect/MEGA_HITSAAC_SC",
+        "country": "Portugal"
+    },
+    {
+        "name": "Rádio Comercial",
+        "url": "https://stream-icy.bauermedia.pt/comercial.mp3",
+        "country": "Portugal"
+    },
+    {
+        "name": "RFM",
+        "url": "https://playerservices.streamtheworld.com/api/livestream-redirect/RFMAAC_SC",
+        "country": "Portugal"
+    },
+    {
+        "name": "Rai Radio 1",
+        "url": "https://radiounoest-live.akamaized.net/hls/live/2032586/radiounoest/radiounoest/playlist.m3u8",
+        "country": "Italy"
+    },
+    {
+        "name": "Radio 24",
+        "url": "https://ilsole24ore-radio.akamaized.net/hls/live/2035301/radio24/playlist.m3u8",
+        "country": "Italy"
+    },
+    {
+        "name": "Radio Italia",
+        "url": "https://radioitaliasmi.akamaized.net/hls/live/2093120/RISMI/stream01/streamPlaylist.m3u8",
+        "country": "Italy"
+    },
+    {
+        "name": "RTL 102.5",
+        "url": "https://dd782ed59e2a4e86aabf6fc508674b59.msvdn.net/live/S97044836/WjpMtPyNjHwj/playlist_audio.m3u8",
+        "country": "Italy"
+    }
+]
