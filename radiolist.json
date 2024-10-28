@@ -45,12 +45,17 @@
         "country": "Netherlands"
     },
     {
+        "name": "Qmusic NL",
+        "url": "https://icecast-qmusicbe-cdp.triple-it.nl/qmusic.aac",
+        "country": "Netherlands"
+    },
+    {
         "name": "Studio Brussel",
         "url": "http://icecast.vrtcdn.be/stubru-high.mp3",
         "country": "Belgium"
     },
     {
-        "name": "Qmusic",
+        "name": "Qmusic BE",
         "url": "http://icecast-qmusicnl-cdp.triple-it.nl/Qmusic_nl_live_96.mp3",
         "country": "Belgium"
     },

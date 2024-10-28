@@ -86,15 +86,32 @@ const initiatingUsers = new Map(); // Map to keep track of the initiating user p
 // Build the command
 const commandBuilder = new SlashCommandBuilder()
   .setName('playstream')
-  .setDescription('Play a radio stream from various countries');
+  .setDescription('Play a radio stream from various countries or a custom URL')
+  .addStringOption(option =>
+    option.setName('url')
+      .setDescription('Provide a custom stream URL to play')
+      .setRequired(false)
+  );
+
 
 module.exports = {
   data: commandBuilder,
   async execute(interaction) {
     try {
+      const url = interaction.options.getString('url');
+      if (url) {
+        // User provided a custom URL
+        const station = {
+          name: 'Custom Stream',
+          url: url,
+        };
+        await handlePlayStream(interaction, station, 'custom_stream');
+        return;
+      }
+  
       // Create a Select Menu for countries
       const countryList = Object.keys(stationsByCountry);
-
+  
       const countryOptions = [
         {
           label: '⭐ Bootie Mashup ⭐',
@@ -107,14 +124,14 @@ module.exports = {
             value: country,
           })),
       ];
-
+  
       const countrySelectMenu = new StringSelectMenuBuilder()
         .setCustomId(`playstream_select_country_${interaction.user.id}`)
         .setPlaceholder('Select a country')
         .addOptions(countryOptions);
-
+  
       const row = new ActionRowBuilder().addComponents(countrySelectMenu);
-
+  
       await interaction.reply({
         content: 'Please select a country:',
         components: [row],
@@ -128,7 +145,7 @@ module.exports = {
         await interaction.reply('An unexpected error occurred. Please try again.');
       }
     }
-  },
+  },  
 
   // Function to handle select menu interactions
   async handleSelectMenu(interaction) {
@@ -337,21 +354,25 @@ const sendMessageToChannel = async (guild, voiceChannel, fallbackTextChannelId, 
 };
 
 // Function to get direct stream URL
+// Function to get direct stream URL
 const getDirectStreamUrl = async (url) => {
   try {
     const response = await fetch(url);
-    const contentType = response.headers.get('content-type');
+    const contentType = response.headers.get('content-type') || '';
 
     if (
       contentType.includes('audio/mpeg') ||
-      contentType.includes('application/octet-stream')
+      contentType.includes('application/octet-stream') ||
+      contentType.includes('audio/aacp') ||
+      contentType.includes('audio/aac')
     ) {
       // Direct stream URL
       return url;
     } else if (
       contentType.includes('audio/x-mpegurl') ||
       contentType.includes('application/vnd.apple.mpegurl') ||
-      contentType.includes('audio/mpegurl')
+      contentType.includes('audio/mpegurl') ||
+      contentType.includes('application/x-mpegurl')
     ) {
       // It's an M3U or M3U8 playlist
       const m3uContent = await response.text();
@@ -379,7 +400,7 @@ const getDirectStreamUrl = async (url) => {
   }
 };
 
-// Function to handle playing the stream
+
 const handlePlayStream = async (interaction, station, selectedCountry, voiceChannelId = null) => {
   try {
     let voiceChannel;
@@ -446,12 +467,11 @@ const handlePlayStream = async (interaction, station, selectedCountry, voiceChan
     });
 
     await interaction.update({
-      content: `Selected station: **${station.name}** from **${
-        selectedCountry.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())
-      }**. Connecting to voice channel **${voiceChannel.name}**...`,
+      content: `Selected station: **${station.name}**. Connecting to voice channel **${voiceChannel.name}**...`,
       components: [],
     });
 
+    // **Define connection and player here**
     // Check if there's an existing connection
     let connection = getVoiceConnection(guildId);
 
@@ -494,33 +514,58 @@ const handlePlayStream = async (interaction, station, selectedCountry, voiceChan
       players.set(guildId, player);
     }
 
-    // Play stream function
+    // Play stream function (updated)
     const playStream = async (stationUrl) => {
       try {
+        console.log('Attempting to stream station:', station.name, 'with URL:', stationUrl);
+    
         const streamUrl = await getDirectStreamUrl(stationUrl);
-
+    
         if (!streamUrl) {
-          await interaction.followUp({
-            content:
-              'Failed to retrieve a valid stream URL from the provided URL or no valid URLs found.',
-            ephemeral: true,
-          });
-          return;
+          throw new Error('Failed to retrieve a valid stream URL.');
         }
-
-        console.log('Attempting to stream:', streamUrl);
-
+    
+        console.log('Resolved stream URL:', streamUrl);
+    
         const audioResource = createAudioResource(streamUrl, { inlineVolume: true });
         audioResource.volume.setVolume(0.2);
         player.play(audioResource);
       } catch (error) {
         handleError('creating audio resource', error);
-        await interaction.followUp({
-          content: 'An error occurred while attempting to play the stream.',
-          ephemeral: true,
-        });
+    
+        // If the station is the custom stream or failed station, revert to Bootie's Mashup
+        if (selectedCountry === 'custom_stream' || selectedCountry) {
+          await interaction.followUp({
+            content: `Failed to play **${station.name}**. Reverting to Bootie's Mashup station.`,
+            ephemeral: true,
+          });
+    
+          // Update station to Bootie's Mashup and retry
+          const bootiesMashupStation = {
+            name: "Bootie's Mashup",
+            url: 'http://c7.radioboss.fm/playlist/205/stream.m3u',
+          };
+          station = bootiesMashupStation; // Update the station variable
+          selectedCountry = 'booties_mashup'; // Update selectedCountry if necessary
+    
+          // Update initiatingUsers map
+          initiatingUsers.set(interaction.guild.id, {
+            userId: interaction.user.id,
+            voiceChannelId: voiceChannel.id,
+            textChannelId: interaction.channel.id,
+          });
+    
+          // Retry playing with the updated station
+          await playStream(station.url);
+          return;
+        } else {
+          await interaction.followUp({
+            content: 'An error occurred while attempting to play the stream.',
+            ephemeral: true,
+          });
+        }
       }
-    };
+    };    
 
     // Subscribe the connection to the player (if not already subscribed)
     if (!connection.state.subscription || connection.state.subscription.player !== player) {
