@@ -8,3 +8,4 @@ node_modules/*
 # Specifically ignore everything in @discordjs except for opus
 node_modules/@discordjs/*
 !node_modules/@discordjs/opus/
+.env

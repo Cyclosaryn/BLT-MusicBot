@@ -7,7 +7,7 @@ const {
   Events, 
   GatewayIntentBits,
 } = require('discord.js');
-const { token } = require('./config.json');
+const token = process.env.DISCORD_TOKEN;
 
 // Add necessary intents
 const client = new Client({
